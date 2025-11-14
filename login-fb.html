@@ -225,6 +225,7 @@
             }
             html += `<p>🆔 ID: ${user.id}</p>`;
             html += `<button class="logout-btn" onclick="fbLogout()">Đăng xuất</button>`;
+            console.log('User Info:', user);
             
             userInfoDiv.innerHTML = html;
         }
