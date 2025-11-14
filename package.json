@@ -2,7 +2,7 @@
   "name": "test-js",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "login-fb.html",
   "scripts": {
     "test": "login-fb.html",
     "start": "node se-test-env.js"
