@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập với Facebook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .login-section {
+            margin: 30px 0;
+        }
+
+        #status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        #status.show {
+            display: block;
+        }
+
+        .user-info {
+            background: #f0f2f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .user-info img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 3px solid #1877f2;
+        }
+
+        .user-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .fb-login-button {
+            display: inline-block;
+            margin: 20px 0;
+        }
+
+        button {
+            background: #1877f2;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin: 10px;
+        }
+
+        button:hover {
+            background: #166fe5;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .logout-btn {
+            background: #e4e6eb;
+            color: #333;
+        }
+
+        .logout-btn:hover {
+            background: #d8dadf;
+        }
+
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Đăng nhập</h1>
+        <p class="subtitle">Sử dụng tài khoản Facebook của bạn</p>
+
+        <div id="status" class="loading">
+            Đang tải...
+        </div>
+
+        <div class="login-section">
+            <fb:login-button 
+                scope="public_profile,email"
+                onlogin="checkLoginState();"
+                data-size="large"
+                data-button-type="login_with"
+                data-layout="default"
+                data-auto-logout-link="false"
+                data-use-continue-as="true">
+            </fb:login-button>
+
+            <div>
+                <button onclick="fbLogin()" style="display: inline-flex; align-items: center; gap: 10px;">
+                    <span>📘</span> Đăng nhập với Facebook
+                </button>
+            </div>
+        </div>
+
+        <div id="userInfo" class="user-info" style="display: none;"></div>
+    </div>
+
+    <script>
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : '1868759537049819',
+                cookie     : true,
+                xfbml      : true,
+                version    : 'v18.0'
+            });
+            
+            FB.AppEvents.logPageView();
+            
+            // Kiểm tra trạng thái đăng nhập khi trang load
+            checkLoginState();
+        };
+
+        // Load Facebook SDK
+        (function(d, s, id){
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement(s); js.id = id;
+            js.src = "https://connect.facebook.net/vi_VN/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+        function checkLoginState() {
+            FB.getLoginStatus(function(response) {
+                statusChangeCallback(response);
+            });
+        }
+
+        function statusChangeCallback(response) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.classList.add('show');
+
+            if (response.status === 'connected') {
+                // Đã đăng nhập
+                statusDiv.style.background = '#d4edda';
+                statusDiv.style.color = '#155724';
+                statusDiv.innerHTML = '✅ Đăng nhập thành công!';
+                getUserInfo();
+            } else {
+                // Chưa đăng nhập
+                statusDiv.style.background = '#fff3cd';
+                statusDiv.style.color = '#856404';
+                statusDiv.innerHTML = '⚠️ Vui lòng đăng nhập để tiếp tục';
+                document.getElementById('userInfo').style.display = 'none';
+            }
+        }
+
+        function getUserInfo() {
+            FB.api('/me', {fields: 'id,name,email,picture.width(200).height(200)'}, function(response) {
+                displayUserInfo(response);
+            });
+        }
+
+        function displayUserInfo(user) {
+            const userInfoDiv = document.getElementById('userInfo');
+            userInfoDiv.style.display = 'block';
+            
+            let html = '';
+            if (user.picture && user.picture.data) {
+                html += `<img src="${user.picture.data.url}" alt="Avatar">`;
+            }
+            html += `<h3>${user.name}</h3>`;
+            if (user.email) {
+                html += `<p>📧 ${user.email}</p>`;
+            }
+            html += `<p>🆔 ID: ${user.id}</p>`;
+            html += `<button class="logout-btn" onclick="fbLogout()">Đăng xuất</button>`;
+            
+            userInfoDiv.innerHTML = html;
+        }
+
+        function fbLogin() {
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    statusChangeCallback(response);
+                } else {
+                    console.log('Người dùng đã hủy đăng nhập.');
+                }
+            }, {scope: 'public_profile,email'});
+        }
+
+        function fbLogout() {
+            FB.logout(function(response) {
+                const statusDiv = document.getElementById('status');
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.innerHTML = '👋 Đã đăng xuất';
+                document.getElementById('userInfo').style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
