@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>네이버 로그인 | Naver Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #1ec800 0%, #00c73c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .naver-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: #03c75a;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .login-section {
+            margin: 30px 0;
+        }
+
+        #naverIdLogin {
+            margin: 20px 0;
+        }
+
+        .naver-login-btn {
+            background: #03c75a;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .naver-login-btn:hover {
+            background: #02b351;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(3, 199, 90, 0.3);
+        }
+
+        .naver-login-btn:active {
+            transform: translateY(0);
+        }
+
+        .naver-icon {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        #status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        #status.show {
+            display: block;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .user-info h3 {
+            color: #03c75a;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 100px;
+        }
+
+        .info-value {
+            color: #212529;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: block;
+            border: 3px solid #03c75a;
+        }
+
+        button.logout-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        button.logout-btn:hover {
+            background: #5a6268;
+        }
+
+        .info-box {
+            background: #e7f5ff;
+            padding: 15px;
+            border-left: 4px solid #03c75a;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: left;
+            font-size: 13px;
+            color: #495057;
+        }
+
+        .info-box strong {
+            color: #03c75a;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #495057;
+            overflow-x: auto;
+        }
+
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="naver-logo">N</div>
+        <h1>네이버 로그인</h1>
+        <p class="subtitle">Naver 계정으로 로그인하세요</p>
+
+        <div class="info-box">
+            <strong>⚠️ 설정 필요:</strong> Naver Developers에서 애플리케이션을 등록하고 Client ID와 Callback URL을 설정해주세요.
+        </div>
+
+        <div id="status" class="loading">
+            초기화 중...
+        </div>
+
+        <div class="login-section">
+            <!-- Naver Login Button Container -->
+            <div id="naverIdLogin"></div>
+            
+            <!-- Custom Login Button -->
+            <button class="naver-login-btn" onclick="naverLoginFunc()">
+                <span class="naver-icon">N</span>
+                네이버 로그인
+            </button>
+        </div>
+
+        <div id="userInfo" style="display: none;"></div>
+
+        <div class="info-box" style="margin-top: 30px;">
+            <p><strong>📝 Naver Developers 설정:</strong></p>
+            <ol style="margin-top: 10px; margin-left: 20px; line-height: 1.8;">
+                <li><a href="https://developers.naver.com" target="_blank" style="color: #03c75a;">developers.naver.com</a> 접속</li>
+                <li>애플리케이션 등록 > API 설정</li>
+                <li>사용 API: 네이버 로그인</li>
+                <li>Callback URL 등록</li>
+            </ol>
+        </div>
+
+        <div class="footer">
+            <p>Naver Login API v1.0</p>
+            <p>© 2025 Naver Corporation</p>
+        </div>
+    </div>
+
+    <!-- Naver Login SDK -->
+    <script src="https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js" charset="utf-8"></script>
+    
+    <script>
+        // ⚠️ 여기에 본인의 Naver Application 정보를 입력하세요
+        const NAVER_CLIENT_ID = 'CmKq7EbBjpvkP5rYNqgK'; // Naver Developers에서 발급받은 Client ID
+        const NAVER_CALLBACK_URL = 'https://picjeju-fe.vercel.app'; // 현재 페이지 URL 또는 등록한 Callback URL
+        
+        let naverLogin;
+
+        // Naver Login 초기화
+        function initNaverLogin() {
+            try {
+                naverLogin = new naver.LoginWithNaverId({
+                    clientId: NAVER_CLIENT_ID,
+                    callbackUrl: NAVER_CALLBACK_URL,
+                    isPopup: false, // popup 사용 여부 (false = redirect 방식)
+                    loginButton: {
+                        color: "green",
+                        type: 3,
+                        height: 50
+                    },
+                    callbackHandle: true
+                });
+
+                // 전역으로 접근 가능하도록 설정
+                window.naverLogin = naverLogin;
+
+                naverLogin.init();
+
+                // 로그인 상태 확인
+                checkLoginStatus();
+            } catch (error) {
+                console.error('Naver Login 초기화 실패:', error);
+                const statusDiv = document.getElementById('status');
+                statusDiv.classList.add('show');
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.innerHTML = '❌ Naver SDK 초기화 실패';
+            }
+        }
+
+        // 로그인 상태 확인
+        function checkLoginStatus() {
+            naverLogin.getLoginStatus(function (status) {
+                const statusDiv = document.getElementById('status');
+                statusDiv.classList.add('show');
+
+                if (status) {
+                    // 로그인 성공
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.innerHTML = '✅ 로그인 성공!';
+                    
+                    // 사용자 정보 가져오기
+                    getUserInfo();
+                } else {
+                    // 로그인 안됨
+                    statusDiv.style.background = '#fff3cd';
+                    statusDiv.style.color = '#856404';
+                    statusDiv.innerHTML = '⚠️ 로그인이 필요합니다';
+                }
+            });
+        }
+
+        // 사용자 정보 가져오기
+        function getUserInfo() {
+            const user = naverLogin.user;
+            
+            if (user) {
+                displayUserInfo(user);
+            }
+        }
+
+        // 사용자 정보 표시
+        function displayUserInfo(user) {
+            const userInfoDiv = document.getElementById('userInfo');
+            userInfoDiv.style.display = 'block';
+
+            let html = '<div class="user-info">';
+            html += '<h3>🎉 로그인 정보</h3>';
+
+            // 프로필 이미지
+            if (user.profile_image) {
+                html += `<img src="${user.profile_image}" alt="Profile" class="profile-image">`;
+            }
+
+            // 사용자 정보
+            if (user.name) {
+                html += `<div class="info-row">
+                    <span class="info-label">이름</span>
+                    <span class="info-value">${user.name}</span>
+                </div>`;
+            }
+
+            if (user.nickname) {
+                html += `<div class="info-row">
+                    <span class="info-label">닉네임</span>
+                    <span class="info-value">${user.nickname}</span>
+                </div>`;
+            }
+
+            if (user.email) {
+                html += `<div class="info-row">
+                    <span class="info-label">이메일</span>
+                    <span class="info-value">${user.email}</span>
+                </div>`;
+            }
+
+            if (user.id) {
+                html += `<div class="info-row">
+                    <span class="info-label">User ID</span>
+                    <span class="info-value">${user.id}</span>
+                </div>`;
+            }
+
+            if (user.age) {
+                html += `<div class="info-row">
+                    <span class="info-label">연령대</span>
+                    <span class="info-value">${user.age}</span>
+                </div>`;
+            }
+
+            if (user.gender) {
+                html += `<div class="info-row">
+                    <span class="info-label">성별</span>
+                    <span class="info-value">${user.gender === 'M' ? '남성' : '여성'}</span>
+                </div>`;
+            }
+
+            if (user.birthday) {
+                html += `<div class="info-row">
+                    <span class="info-label">생일</span>
+                    <span class="info-value">${user.birthday}</span>
+                </div>`;
+            }
+
+            if (user.mobile) {
+                html += `<div class="info-row">
+                    <span class="info-label">휴대폰</span>
+                    <span class="info-value">${user.mobile}</span>
+                </div>`;
+            }
+
+            html += '<button class="logout-btn" onclick="naverLogout()">로그아웃</button>';
+            html += '</div>';
+
+            userInfoDiv.innerHTML = html;
+
+            // 로그인 버튼 숨기기
+            document.querySelector('.login-section').style.display = 'none';
+        }
+
+        // 로그인 버튼 클릭
+        function naverLoginFunc() {
+            if (NAVER_CLIENT_ID === 'YOUR_CLIENT_ID') {
+                alert('❌ Naver Client ID를 설정해주세요!\n\nconst NAVER_CLIENT_ID = "YOUR_CLIENT_ID"; 부분을 수정하세요.');
+                return;
+            }
+
+            // naverLogin 객체가 초기화되지 않은 경우 대기
+            if (!window.naverLogin) {
+                alert('⏳ Naver SDK를 로딩 중입니다. 잠시 후 다시 시도해주세요.');
+                return;
+            }
+
+            // SDK의 login 버튼 클릭 트리거
+            const loginButton = document.querySelector('#naverIdLogin a');
+            console.log('Login Button:', loginButton);
+            if (loginButton) {
+                loginButton.click();
+            } else {
+                // 버튼이 없으면 직접 로그인 페이지로 이동
+                const loginUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=token&client_id=${NAVER_CLIENT_ID}&redirect_uri=${encodeURIComponent(NAVER_CALLBACK_URL)}&state=${Math.random().toString(36).substr(2, 11)}`;
+                window.location.href = loginUrl;
+            }
+        }
+
+        // 로그아웃
+        function naverLogout() {
+            // Naver 로그아웃 처리
+            if (window.naverLogin) {
+                window.naverLogin.logout();
+            }
+            
+            // UI 초기화
+            document.getElementById('userInfo').style.display = 'none';
+            document.querySelector('.login-section').style.display = 'block';
+            
+            const statusDiv = document.getElementById('status');
+            statusDiv.style.background = '#f8d7da';
+            statusDiv.style.color = '#721c24';
+            statusDiv.innerHTML = '👋 로그아웃 되었습니다';
+
+            // 페이지 새로고침 (선택사항)
+            setTimeout(() => {
+                window.location.href = window.location.pathname;
+            }, 1500);
+        }
+
+        // URL에서 access token 확인 (Callback 처리)
+        window.addEventListener('load', function() {
+            const hash = window.location.hash;
+            if (hash) {
+                // Callback으로 돌아온 경우
+                const params = new URLSearchParams(hash.substring(1));
+                const accessToken = params.get('access_token');
+                
+                if (accessToken) {
+                    console.log('Access Token:', accessToken);
+                    // Access Token이 있으면 초기화
+                    initNaverLogin();
+                } else {
+                    initNaverLogin();
+                }
+            } else {
+                initNaverLogin();
+            }
+        });
+    </script>
+</body>
+</html>
